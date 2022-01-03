@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="green_400">#BCED09</color>
+    <color name="dark_green">#8CB106</color>
+    <color name="night_gren">#4E6204</color>
+    <color name="red_pigment">#ED1C24</color>
+    <color name="red_dark">#D01117</color>
+    <color name="seaweed">#00798C</color>
+    <color name="deep_seawed">#004752</color>
+    <color name="black">#020100</color>
+    <color name="baby_powder">#FDFFFC</color>
+</resources>
