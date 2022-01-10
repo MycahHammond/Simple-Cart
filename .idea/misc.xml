@@ -5,7 +5,7 @@
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_cart.xml" value="0.266304347826087" />
-        <entry key="app/src/main/res/layout/fragment_cart_item.xml" value="0.266304347826087" />
+        <entry key="app/src/main/res/layout/fragment_cart_item.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_cart_list.xml" value="0.26927083333333335" />
         <entry key="app/src/main/res/layout/fragment_cart_list2.xml" value="0.2859375" />
         <entry key="app/src/main/res/layout/fragment_cart_list_item.xml" value="0.1453125" />
