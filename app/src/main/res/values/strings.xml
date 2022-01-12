@@ -2,5 +2,6 @@
     <string name="app_name">Simple Cart</string>
     <string name="add_button">Add Button</string>
     <string name="item_description">Item Description</string>
-    <string name="zero_cost">$0</string>
+    <string name="zero_cost">0</string>
+    <string name="item_hint">Some Random thing</string>
 </resources>

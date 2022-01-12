@@ -52,14 +52,7 @@ class CartFragment : Fragment() {
 
         val dataSource = CartDatabase.getInstance(application).itemDao
 
-
-        val items = mutableListOf<CartItem>()
-
-        val i1 = CartItem()
-        i1.description = "Nothing Here"
-        i1.cost = 0.00
-
-        items.add(i1)
+        val items = dataSource.getCartItems()
 
         binding.itemRecycler.layoutManager =when {
             columnCount <= 1 -> LinearLayoutManager(context)
@@ -69,6 +62,10 @@ class CartFragment : Fragment() {
         binding.itemRecycler.adapter = ItemsRecyclerViewAdapter(items)
 
 
+        binding.fab.setOnClickListener{
+            suspend { dataSource.insert(CartItem())}
+            Log.d("ITEM COUNT", items.value?.size.toString())
+        }
 
         return binding.root
     }

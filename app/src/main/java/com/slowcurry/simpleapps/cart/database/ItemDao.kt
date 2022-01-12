@@ -15,8 +15,8 @@ interface ItemDao {
     @Update
     suspend fun update(item: CartItem)
 
-    @Query("SELECT * FROM items_table WHERE list_id = :cartID ORDER BY position")
-     fun getCartItems(cartID: Long): LiveData<List<CartItem>>
+    @Query("SELECT * FROM items_table ORDER BY position")
+     fun getCartItems(): LiveData<List<CartItem>>
 
 
 }
