@@ -1,21 +1,18 @@
 package com.slowcurry.simpleapps.cart.simplecart
 
 import android.os.Bundle
-import android.util.Log
-import android.util.Log.DEBUG
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.slowcurry.simpleapps.cart.BuildConfig.DEBUG
 import com.slowcurry.simpleapps.cart.R
+import com.slowcurry.simpleapps.cart.SimpleCartApplication
 import com.slowcurry.simpleapps.cart.database.CartDatabase
 import com.slowcurry.simpleapps.cart.database.CartItem
-import com.slowcurry.simpleapps.cart.database.ItemDao
 import com.slowcurry.simpleapps.cart.databinding.FragmentCartBinding
 
 /**
@@ -23,22 +20,22 @@ import com.slowcurry.simpleapps.cart.databinding.FragmentCartBinding
  */
 class CartFragment : Fragment() {
 
-    private var columnCount = 1
+    private lateinit var application : SimpleCartApplication
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        arguments?.let {
-//            columnCount = it.getInt(ARG_COLUMN_COUNT)
-//        }
-
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        application = requireActivity().application as SimpleCartApplication
+        val itemViewModel: ItemViewModel by viewModels {
+            ItemViewModelFactor(application.repository)
+        }
 
         val binding: FragmentCartBinding = DataBindingUtil.inflate(
             inflater,
@@ -47,24 +44,19 @@ class CartFragment : Fragment() {
             false
         )
 
-        //Database-viewModel set up and ref
-        val application = requireNotNull(this.activity).application
+        val adapter = ItemsRecyclerViewAdapter()
+        binding.itemRecycler.adapter = adapter
+        binding.itemRecycler.layoutManager = LinearLayoutManager(context)
 
-        val dataSource = CartDatabase.getInstance(application).itemDao
-
-        val items = dataSource.getCartItems()
-
-        binding.itemRecycler.layoutManager =when {
-            columnCount <= 1 -> LinearLayoutManager(context)
-            else -> GridLayoutManager(context, columnCount)
+        itemViewModel.allItems.observe(viewLifecycleOwner){
+            it.let { adapter.submitList(it) }
         }
 
-        binding.itemRecycler.adapter = ItemsRecyclerViewAdapter(items)
-
-
         binding.fab.setOnClickListener{
-            suspend { dataSource.insert(CartItem())}
-            Log.d("ITEM COUNT", items.value?.size.toString())
+            var item = CartItem()
+            item.description = "New thing"
+            item.cost = 0.0
+            itemViewModel.insert(item)
         }
 
         return binding.root

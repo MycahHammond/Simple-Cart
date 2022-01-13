@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.set
 import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import com.slowcurry.simpleapps.cart.R
 import com.slowcurry.simpleapps.cart.database.Cart
 import com.slowcurry.simpleapps.cart.database.CartItem
@@ -22,8 +24,7 @@ import com.slowcurry.simpleapps.cart.databinding.FragmentCartItemBinding
 
 
 class ItemsRecyclerViewAdapter(
-    private val values: LiveData<List<CartItem>>
-) : RecyclerView.Adapter<ItemsRecyclerViewAdapter.ItemViewHolder>() {
+) : ListAdapter<CartItem, ItemsRecyclerViewAdapter.ItemViewHolder>(ITEM_COMPARATOR) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -40,53 +41,53 @@ class ItemsRecyclerViewAdapter(
 
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val item = values.value?.get(position)
+        val item = getItem(position)
 
         holder.descriptionView.text = item?.description
         holder.costView.text = "$${item?.cost.toString()}"
-        holder.itemConstrView.setOnClickListener {
-            val imm = getSystemService(it.context, InputMethodManager::class.java)
-
-            //get current text
-            holder.editDescription.setText(item?.description)
-            holder.editCost.setText(item?.cost.toString())
-
-            //swap visibilities
-            holder.descriptionView.visibility = View.GONE
-            holder.editDescription.visibility = View.VISIBLE
-
-            holder.costView.visibility = View.GONE
-            holder.editCost.visibility = View.VISIBLE
-
-            holder.editDescription.requestFocus()
-            holder.editDescription.selectAll()
-            imm?.showSoftInput(holder.editDescription, 0)
-
-            //DONE clicked
-            holder.editCost.setOnEditorActionListener { textView, i, keyEvent ->
-                if (i == EditorInfo.IME_ACTION_DONE) {
-                    updateItem(
-                        holder.editDescription.text.toString(),
-                        holder.editCost.text.toString(),
-                        item,
-                        textView.context
-                    )
-                    this.notifyItemChanged(position)
-                    holder.editCost.visibility = View.GONE
-                    holder.costView.visibility = View.VISIBLE
-
-                    holder.editDescription.visibility = View.GONE
-                    holder.descriptionView.visibility = View.VISIBLE
-
-                    imm?.hideSoftInputFromWindow(it.windowToken, 0)
-
-                    holder.itemConstrView.clearFocus()
-                    return@setOnEditorActionListener true
-                }
-                false
-            }
-
-        }
+//        holder.itemConstrView.setOnClickListener {
+//            val imm = getSystemService(it.context, InputMethodManager::class.java)
+//
+//            //get current text
+//            holder.editDescription.setText(item?.description)
+//            holder.editCost.setText(item?.cost.toString())
+//
+//            //swap visibilities
+//            holder.descriptionView.visibility = View.GONE
+//            holder.editDescription.visibility = View.VISIBLE
+//
+//            holder.costView.visibility = View.GONE
+//            holder.editCost.visibility = View.VISIBLE
+//
+//            holder.editDescription.requestFocus()
+//            holder.editDescription.selectAll()
+//            imm?.showSoftInput(holder.editDescription, 0)
+//
+//            //DONE clicked
+//            holder.editCost.setOnEditorActionListener { textView, i, keyEvent ->
+//                if (i == EditorInfo.IME_ACTION_DONE) {
+//                    updateItem(
+//                        holder.editDescription.text.toString(),
+//                        holder.editCost.text.toString(),
+//                        item,
+//                        textView.context
+//                    )
+//                    this.notifyItemChanged(position)
+//                    holder.editCost.visibility = View.GONE
+//                    holder.costView.visibility = View.VISIBLE
+//
+//                    holder.editDescription.visibility = View.GONE
+//                    holder.descriptionView.visibility = View.VISIBLE
+//
+//                    imm?.hideSoftInputFromWindow(it.windowToken, 0)
+//
+//                    holder.itemConstrView.clearFocus()
+//                    return@setOnEditorActionListener true
+//                }
+//                false
+//            }
+//
+//        }
 
 //        holder.descriptionView.setOnLongClickListener{
 //            values.removeAt(position)
@@ -106,7 +107,6 @@ class ItemsRecyclerViewAdapter(
     }
 
 
-    override fun getItemCount(): Int = values.value?.size ?: 0
 
     inner class ItemViewHolder(binding: FragmentCartItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -121,8 +121,17 @@ class ItemsRecyclerViewAdapter(
         }
     }
 
+    companion object{
+        private val ITEM_COMPARATOR = object : DiffUtil.ItemCallback<CartItem>(){
+            override fun areItemsTheSame(oldItem: CartItem, newItem: CartItem): Boolean {
+                return  oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: CartItem, newItem: CartItem): Boolean {
+                return oldItem.description == newItem.description
+            }
+        }
+    }
+
 }
 
-private fun TextView.setOnLongClickListener(function: (View) -> Unit) {
-
-}
