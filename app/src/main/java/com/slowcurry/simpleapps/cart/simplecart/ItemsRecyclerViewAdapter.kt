@@ -1,5 +1,6 @@
 package com.slowcurry.simpleapps.cart.simplecart
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.*
 import android.util.Log
@@ -14,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.set
+import androidx.databinding.adapters.ViewBindingAdapter.setOnLongClickListener
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -24,8 +26,8 @@ import com.slowcurry.simpleapps.cart.databinding.FragmentCartItemBinding
 
 
 class ItemsRecyclerViewAdapter(
+    private val itemViewModel: ItemViewModel
 ) : ListAdapter<CartItem, ItemsRecyclerViewAdapter.ItemViewHolder>(ITEM_COMPARATOR) {
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return this.ItemViewHolder(
@@ -34,75 +36,82 @@ class ItemsRecyclerViewAdapter(
                 parent,
                 false
             )
-
         )
 
     }
 
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = getItem(position)
 
+
         holder.descriptionView.text = item?.description
-        holder.costView.text = "$${item?.cost.toString()}"
-//        holder.itemConstrView.setOnClickListener {
-//            val imm = getSystemService(it.context, InputMethodManager::class.java)
-//
-//            //get current text
-//            holder.editDescription.setText(item?.description)
-//            holder.editCost.setText(item?.cost.toString())
-//
-//            //swap visibilities
-//            holder.descriptionView.visibility = View.GONE
-//            holder.editDescription.visibility = View.VISIBLE
-//
-//            holder.costView.visibility = View.GONE
-//            holder.editCost.visibility = View.VISIBLE
-//
-//            holder.editDescription.requestFocus()
-//            holder.editDescription.selectAll()
-//            imm?.showSoftInput(holder.editDescription, 0)
-//
-//            //DONE clicked
-//            holder.editCost.setOnEditorActionListener { textView, i, keyEvent ->
-//                if (i == EditorInfo.IME_ACTION_DONE) {
-//                    updateItem(
-//                        holder.editDescription.text.toString(),
-//                        holder.editCost.text.toString(),
-//                        item,
-//                        textView.context
-//                    )
-//                    this.notifyItemChanged(position)
-//                    holder.editCost.visibility = View.GONE
-//                    holder.costView.visibility = View.VISIBLE
-//
-//                    holder.editDescription.visibility = View.GONE
-//                    holder.descriptionView.visibility = View.VISIBLE
-//
-//                    imm?.hideSoftInputFromWindow(it.windowToken, 0)
-//
-//                    holder.itemConstrView.clearFocus()
-//                    return@setOnEditorActionListener true
-//                }
-//                false
-//            }
-//
-//        }
+        holder.costView.text = "$${String.format("%.2f", item?.cost)}"
+        holder.itemConstrView.setOnClickListener {
+            val imm = getSystemService(it.context, InputMethodManager::class.java)
+            if (holder.deleteButton.visibility != View.GONE) holder.deleteButton.visibility = View.GONE
 
-//        holder.descriptionView.setOnLongClickListener{
-//            values.removeAt(position)
-//            this.notifyItemChanged(position)
-//            it.isLongClickable
-//        }
+            //get current text
+            holder.editDescription.setText(item?.description)
+            holder.editCost.setText(item?.cost.toString())
+
+            //swap visibilities
+            holder.descriptionView.visibility = View.GONE
+            holder.editDescription.visibility = View.VISIBLE
+
+            holder.costView.visibility = View.GONE
+            holder.editCost.visibility = View.VISIBLE
+
+            holder.editDescription.requestFocus()
+
+            holder.saveButton.visibility = View.VISIBLE
+            imm?.showSoftInput(holder.editDescription, 0)
+
+            //Save clicked
+            holder.saveButton.setOnClickListener {
+                updateItem(
+                    holder.editDescription.text.toString(),
+                    holder.editCost.text.toString(),
+                    item,
+                    itemViewModel
+
+                )
+                this.notifyItemChanged(position)
+                holder.editCost.visibility = View.GONE
+                holder.costView.visibility = View.VISIBLE
+
+                holder.editDescription.visibility = View.GONE
+                holder.descriptionView.visibility = View.VISIBLE
+
+                holder.saveButton.visibility = View.GONE
+
+                //imm?.hideSoftInputFromWindow(it.windowToken, 0)
+
+                holder.itemConstrView.clearFocus()
+            }
+
+        }
 
 
-    }
 
-    private fun updateItem(description: String, cost: String, item: CartItem?, context: Context) {
+        holder.itemConstrView.setOnLongClickListener(){
+            holder.deleteButton.visibility = View.VISIBLE
+            holder.deleteButton.setOnClickListener{
+                itemViewModel.delete(item)
+                it.visibility = View.GONE
+            }
+            it.isLongClickable
+        }
+
+
+}
+
+    private fun updateItem(description: String, cost: String, item: CartItem?, itemViewModel: ItemViewModel) {
         if(item != null) {
-            if (description.isNotEmpty()) item.description = description else item.description =
-                context.getString(R.string.item_hint)
+            if (description.isNotEmpty()) item.description = description else item.description = "Tap to edit"
             if (cost.isNotEmpty()) item.cost = cost.toDouble() else item.cost = 0.00
+            itemViewModel.update(item)
         }
     }
 
@@ -115,6 +124,8 @@ class ItemsRecyclerViewAdapter(
         val editDescription: EditText = binding.itemDescriptionEdit
         val editCost: EditText = binding.itemCostEdit
         val itemConstrView = binding.itemConstraint
+        val saveButton = binding.saveButton
+        val deleteButton = binding.deleteButton
 
         override fun toString(): String {
             return super.toString() + " '" + costView.text + "'"

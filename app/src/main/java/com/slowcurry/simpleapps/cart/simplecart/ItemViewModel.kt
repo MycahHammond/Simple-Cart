@@ -15,6 +15,18 @@ class ItemViewModel(private val repository: ItemRepository): ViewModel() {
         repository.insert(item)
     }
 
+    fun deleteTable() = viewModelScope.launch {
+        repository.deleteTable()
+    }
+
+    fun update(item: CartItem) = viewModelScope.launch {
+        repository.update(item)
+    }
+
+    fun delete(item: CartItem) = viewModelScope.launch {
+        repository.delete(item)
+    }
+
 
 }
 

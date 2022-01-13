@@ -1,9 +1,6 @@
 package com.slowcurry.simpleapps.cart.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
@@ -13,6 +10,12 @@ interface ItemDao {
 
     @Update
     suspend fun update(item: CartItem)
+
+    @Delete
+    suspend fun delete(item: CartItem)
+
+    @Query("DELETE FROM items_table")
+    suspend fun deleteTable()
 
     @Query("SELECT * FROM items_table ORDER BY position")
      fun getCartItems(): Flow<List<CartItem>>

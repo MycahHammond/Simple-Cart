@@ -4,4 +4,9 @@
     <string name="item_description">Item Description</string>
     <string name="zero_cost">0</string>
     <string name="item_hint">Some Random thing</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="clear_cart">Clear Cart</string>
+    <string name="total">Total:</string>
+    <string name="fab_add_description">Button to add item to list.</string>
 </resources>
