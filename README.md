@@ -13,3 +13,5 @@ Cart total is automatically updated as items are added, deleted or updated. The 
 
 Utilizes Jetpack components Databinding, Room, LiveData, and ViewModel. 
 
+Do install, download and run using Android studio. Can be launched on emulator or physical device via ADB and USB connection.
+
